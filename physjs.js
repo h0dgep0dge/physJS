@@ -160,7 +160,7 @@ var physJS;
             return 0;
         };
         lineObj.prototype.draw = function (out) {
-            drawer.line(this.getEndpoints(), 2, 'black');
+            out.line(this.getEndpoints(), 2, 'black');
         };
         return lineObj;
     })();
@@ -242,36 +242,9 @@ var physJS;
             this.parents = parents;
         }
         bouncyPlane.prototype.draw = function (out) {
-            drawer.line([this.parents[0].getLoc(), this.parents[1].getLoc()], 2, 'black');
+            out.line([this.parents[0].getLoc(), this.parents[1].getLoc()], 2, 'black');
         };
         return bouncyPlane;
     })();
     physJS.bouncyPlane = bouncyPlane;
 })(physJS || (physJS = {}));
-var drawer = new physJS.SVGDrawer(document.getElementById('target'));
-var a = new physJS.simplePoint(new physJS.coords2d(100, 100));
-var b = new physJS.simplePoint(new physJS.coords2d(500, 500));
-var c = new physJS.weightedPoint(new physJS.coords2d(450, 100), new physJS.vector2d(100, 0), 1);
-var l1 = new physJS.dampenedHookeanLinkage([a, c], 0.5, 10, 1);
-var l2 = new physJS.dampenedHookeanLinkage([b, c], 0.5, 10, 1);
-var g = new physJS.idealizedPlanarGravity(physJS.vector2d.norm(new physJS.vector2d(0, 10)), 10);
-g.addChildList([c]);
-var p = new physJS.bouncyPlane([
-    new physJS.simplePoint(new physJS.coords2d(10, 400)),
-    new physJS.simplePoint(new physJS.coords2d(500, 600))
-]);
-var cont = new physJS.controller();
-cont.addStepperList([c, g, l1, l2]);
-cont.addDrawerList([a, b, c, l1, l2]);
-/*cont.addStepperList([b,c,l2]);
-cont.addDrawerList([b,c,l2]);*/
-var superstep = function () {
-    drawer.clear();
-    cont.step(1 / 50);
-    cont.draw(drawer);
-    window.setTimeout(function () { window.requestAnimationFrame(superstep); }, 1000 / 50);
-};
-document.getElementById('target').addEventListener('mousemove', function (e) {
-    a.move(new physJS.coords2d(e.offsetX, e.offsetY));
-});
-superstep();
